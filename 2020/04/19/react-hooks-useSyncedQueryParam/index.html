@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="业务背景B 端后台系统中常见的业务场景就是表单列表页面，当用户A浏览第三页表单时，通过 url 分享给用户B后希望B用户打开链接后页面和用户A看到的数据一致。这就需要将页面url参数解析并赋值到组件内状态，并且组件内部的状态更改后同步到url中（以便二次分享）。 解决方案使用浏览器的原生 window.location 和 URLSearchParams 来实现这个功能。以下是一个示例，展示如何手">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 常用 hooks 之 useSyncedQueryParam：如何将组件内的状态与路由参数双向绑定">
+<meta property="og:url" content="https://allen2dev.github.io/2020/04/19/react-hooks-useSyncedQueryParam/index.html">
+<meta property="og:site_name" content="我的碎碎念">
+<meta property="og:description" content="业务背景B 端后台系统中常见的业务场景就是表单列表页面，当用户A浏览第三页表单时，通过 url 分享给用户B后希望B用户打开链接后页面和用户A看到的数据一致。这就需要将页面url参数解析并赋值到组件内状态，并且组件内部的状态更改后同步到url中（以便二次分享）。 解决方案使用浏览器的原生 window.location 和 URLSearchParams 来实现这个功能。以下是一个示例，展示如何手">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-06-12T12:25:12.719Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="react">
+<meta property="article:tag" content="hooks">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>React 常用 hooks 之 useSyncedQueryParam：如何将组件内的状态与路由参数双向绑定</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2021/01/14/javascript%20%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E5%8F%AF%E4%B8%AD%E6%96%AD%E6%89%A7%E8%A1%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2020/04/18/react-hooks/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+    </span>
+    <br/>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">业务背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">2.</span> <span class="toc-text">解决方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%BD%E7%A6%BB%E9%80%9A%E7%94%A8-hook%EF%BC%9AuseSyncedQueryParam"><span class="toc-number">3.</span> <span class="toc-text">抽离通用 hook：useSyncedQueryParam</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry heti" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        React 常用 hooks 之 useSyncedQueryParam：如何将组件内的状态与路由参数双向绑定
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Allen</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-04-18T16:00:00.000Z" class="dt-published" itemprop="datePublished">2020-04-19</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/hooks/" rel="tag">hooks</a>, <a class="p-category" href="/tags/react/" rel="tag">react</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h2><p>B 端后台系统中常见的业务场景就是表单列表页面，当用户A浏览第三页表单时，通过 url 分享给用户B后希望B用户打开链接后页面和用户A看到的数据一致。这就需要将页面url参数解析并赋值到组件内状态，并且组件内部的状态更改后同步到url中（以便二次分享）。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>使用浏览器的原生 <code>window.location</code> 和 <code>URLSearchParams</code> 来实现这个功能。以下是一个示例，展示如何手动控制 URL 和组件状态的双向绑定，以实现分页功能：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span>, &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">useQuery</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">search</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">MyComponent</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> query = <span class="title function_">useQuery</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> [pageNum, setPageNum] = <span class="title function_">useState</span>(<span class="title class_">Number</span>(query.<span class="title function_">get</span>(<span class="string">&#x27;pageNum&#x27;</span>)) || <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">const</span> [pageSize, setPageSize] = <span class="title function_">useState</span>(<span class="title class_">Number</span>(query.<span class="title function_">get</span>(<span class="string">&#x27;pageSize&#x27;</span>)) || <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> params = <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">search</span>);</span><br><span class="line">    <span class="keyword">if</span> (pageNum) &#123;</span><br><span class="line">      params.<span class="title function_">set</span>(<span class="string">&#x27;pageNum&#x27;</span>, pageNum);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (pageSize) &#123;</span><br><span class="line">      params.<span class="title function_">set</span>(<span class="string">&#x27;pageSize&#x27;</span>, pageSize);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">window</span>.<span class="property">history</span>.<span class="title function_">replaceState</span>(<span class="literal">null</span>, <span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;?&#x27;</span> + params.<span class="title function_">toString</span>());</span><br><span class="line">  &#125;, [pageNum, pageSize]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">handlePageChange</span> = (<span class="params">newPageNum</span>) =&gt; &#123;</span><br><span class="line">    <span class="title function_">setPageNum</span>(newPageNum);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">handlePageSizeChange</span> = (<span class="params">newPageSize</span>) =&gt; &#123;</span><br><span class="line">    <span class="title function_">setPageSize</span>(newPageSize);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">h1</span>&gt;</span>分页组件<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>Page Number: &#123;pageNum&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>Page Size: &#123;pageSize&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> handlePageChange(pageNum + 1)&#125;&gt;Next Page<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> handlePageSizeChange(20)&#125;&gt;Set Page Size to 20<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">MyComponent</span>;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面这种方式，可以实现 URL 参数和组件状态的双向绑定，使得分页信息可以在 URL 和组件状态之间保持同步。</p>
+<p>如果每个页面都这样手控控制就会造成大量冗余代码，可以抽离成通用 hook, 这样其他组件使用时可以直接命名参数名、参数值。</p>
+<h2 id="抽离通用-hook：useSyncedQueryParam"><a href="#抽离通用-hook：useSyncedQueryParam" class="headerlink" title="抽离通用 hook：useSyncedQueryParam"></a>抽离通用 hook：useSyncedQueryParam</h2><p>以下是实现方法：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">useQueryParams</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">search</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">useSyncedQueryParam</span>(<span class="params">paramName, defaultValue</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> query = <span class="title function_">useQueryParams</span>();</span><br><span class="line">  <span class="keyword">const</span> [value, setValue] = <span class="title function_">useState</span>(query.<span class="title function_">get</span>(paramName) || defaultValue);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> params = <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">search</span>);</span><br><span class="line">    <span class="keyword">if</span> (value !== <span class="literal">undefined</span> &amp;&amp; value !== <span class="literal">null</span>) &#123;</span><br><span class="line">      params.<span class="title function_">set</span>(paramName, value);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      params.<span class="title function_">delete</span>(paramName);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">window</span>.<span class="property">history</span>.<span class="title function_">replaceState</span>(<span class="literal">null</span>, <span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;?&#x27;</span> + params.<span class="title function_">toString</span>());</span><br><span class="line">  &#125;, [value, paramName]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> [value, setValue];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> useSyncedQueryParam;</span><br></pre></td></tr></table></figure>
+
+<p>可以在组件中使用这个通用 Hook，如下所示：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> useSyncedQueryParam <span class="keyword">from</span> <span class="string">&#x27;./useSyncedQueryParam&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">MyComponent</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [pageNum, setPageNum] = <span class="title function_">useSyncedQueryParam</span>(<span class="string">&#x27;pageNum&#x27;</span>, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">const</span> [pageSize, setPageSize] = <span class="title function_">useSyncedQueryParam</span>(<span class="string">&#x27;pageSize&#x27;</span>, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">handlePageChange</span> = (<span class="params">newPageNum</span>) =&gt; &#123;</span><br><span class="line">    <span class="title function_">setPageNum</span>(newPageNum);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">handlePageSizeChange</span> = (<span class="params">newPageSize</span>) =&gt; &#123;</span><br><span class="line">    <span class="title function_">setPageSize</span>(newPageSize);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">h1</span>&gt;</span>分页组件<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>Page Number: &#123;pageNum&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>Page Size: &#123;pageSize&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> handlePageChange(pageNum + 1)&#125;&gt;Next Page<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> handlePageSizeChange(20)&#125;&gt;Set Page Size to 20<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">MyComponent</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这样就可以在多个组件中复用 <code>useSyncedQueryParam</code> Hook，轻松实现 URL 参数和组件状态的双向绑定。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">业务背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">2.</span> <span class="toc-text">解决方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%BD%E7%A6%BB%E9%80%9A%E7%94%A8-hook%EF%BC%9AuseSyncedQueryParam"><span class="toc-number">3.</span> <span class="toc-text">抽离通用 hook：useSyncedQueryParam</span></a></li></ol>
+      </div>
+    
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2018-2024
+    Allen
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+<link
+    rel="stylesheet"
+    href="/lib/heti/heti.min.css"
+  />
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
