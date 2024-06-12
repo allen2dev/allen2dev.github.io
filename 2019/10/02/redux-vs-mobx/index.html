@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1. 状态管理理念Redux:  单一状态树：Redux 将整个应用的状态存储在一个单一的对象中，这个对象被称为“store”。 不可变状态：状态是不可变的，每次状态改变都会返回一个新的状态对象。 纯函数：状态的变化通过纯函数（reducer）来处理。reducer 接收当前状态和 action，并返回新的状态。 明确的数据流：Redux 强调单向数据流，action 触发状态变化，然后 UI 更">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redux 与 MobX 的区别有哪些？">
+<meta property="og:url" content="http://example.com/2019/10/02/redux-vs-mobx/index.html">
+<meta property="og:site_name" content="我的碎碎念">
+<meta property="og:description" content="1. 状态管理理念Redux:  单一状态树：Redux 将整个应用的状态存储在一个单一的对象中，这个对象被称为“store”。 不可变状态：状态是不可变的，每次状态改变都会返回一个新的状态对象。 纯函数：状态的变化通过纯函数（reducer）来处理。reducer 接收当前状态和 action，并返回新的状态。 明确的数据流：Redux 强调单向数据流，action 触发状态变化，然后 UI 更">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-10-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-06-11T15:35:39.004Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="redux">
+<meta property="article:tag" content="mobx">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Redux 与 MobX 的区别有哪些？</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2020/04/18/react-hooks/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2019/08/10/mobile-viewport/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+    </span>
+    <br/>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E7%90%86%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">1. 状态管理理念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">2. 使用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%80%A7%E8%83%BD"><span class="toc-number">3.</span> <span class="toc-text">3. 性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">4.</span> <span class="toc-text">适用场景</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry heti" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Redux 与 MobX 的区别有哪些？
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Allen</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-10-01T16:00:00.000Z" class="dt-published" itemprop="datePublished">2019-10-02</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/mobx/" rel="tag">mobx</a>, <a class="p-category" href="/tags/redux/" rel="tag">redux</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h3 id="1-状态管理理念"><a href="#1-状态管理理念" class="headerlink" title="1. 状态管理理念"></a>1. 状态管理理念</h3><p><strong>Redux:</strong></p>
+<ul>
+<li><strong>单一状态树</strong>：Redux 将整个应用的状态存储在一个单一的对象中，这个对象被称为“store”。</li>
+<li><strong>不可变状态</strong>：状态是不可变的，每次状态改变都会返回一个新的状态对象。</li>
+<li><strong>纯函数</strong>：状态的变化通过纯函数（reducer）来处理。reducer 接收当前状态和 action，并返回新的状态。</li>
+<li><strong>明确的数据流</strong>：Redux 强调单向数据流，action 触发状态变化，然后 UI 更新。</li>
+</ul>
+<p><strong>MobX:</strong></p>
+<ul>
+<li><strong>多状态树</strong>：MobX 没有强制单一状态树的概念，可以在多个地方存储状态。</li>
+<li><strong>可变状态</strong>：状态是可变的，允许直接修改状态对象。</li>
+<li><strong>响应式编程</strong>：使用 observables 来追踪状态变化，UI 会自动响应这些变化。</li>
+<li><strong>隐式数据流</strong>：状态变化是响应式的，依赖于观察者模式。</li>
+</ul>
+<h3 id="2-使用方式"><a href="#2-使用方式" class="headerlink" title="2. 使用方式"></a>2. 使用方式</h3><p><strong>Redux:</strong></p>
+<ul>
+<li><strong>严格的结构</strong>：通常需要定义 actions、reducers 和 store。代码结构比较严格，适合大型应用。</li>
+<li><strong>手动管理副作用</strong>：需要中间件（如 redux-thunk 或 redux-saga）来处理异步操作和副作用。</li>
+<li><strong>详尽的调试工具</strong>：Redux DevTools 提供了强大的调试能力，可以查看状态变化的历史和 action 触发的过程。</li>
+</ul>
+<p><strong>MobX:</strong></p>
+<ul>
+<li><strong>灵活的结构</strong>：更为灵活，不需要严格的 actions 和 reducers 定义，直接修改状态即可。</li>
+<li><strong>自动追踪依赖</strong>：MobX 会自动追踪状态的依赖关系，简化了代码复杂度。</li>
+<li><strong>简单的异步操作</strong>：MobX 内置了对异步操作的支持，更加直观。</li>
+</ul>
+<h3 id="3-性能"><a href="#3-性能" class="headerlink" title="3. 性能"></a>3. 性能</h3><p><strong>Redux:</strong></p>
+<ul>
+<li><strong>手动优化</strong>：由于状态是不可变的，需要手动优化（如 shouldComponentUpdate）以提升性能。</li>
+</ul>
+<p><strong>MobX:</strong></p>
+<ul>
+<li><strong>自动优化</strong>：得益于响应式编程模型，MobX 会自动追踪依赖关系，通常会有较好的性能表现。</li>
+</ul>
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li><strong>Redux</strong> 适用于大型应用程序，特别是那些需要严格控制状态变化和数据流的应用。它的可预测性和调试能力使得其在复杂应用中表现出色。</li>
+<li><strong>MobX</strong> 更适合中小型应用程序，或是那些需要快速开发和响应式更新的应用。它的灵活性和易用性使其在快速迭代的项目中非常实用。</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E7%90%86%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">1. 状态管理理念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">2. 使用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%80%A7%E8%83%BD"><span class="toc-number">3.</span> <span class="toc-text">3. 性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">4.</span> <span class="toc-text">适用场景</span></a></li></ol>
+      </div>
+    
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2018-2024
+    Allen
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+<link
+    rel="stylesheet"
+    href="/lib/heti/heti.min.css"
+  />
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

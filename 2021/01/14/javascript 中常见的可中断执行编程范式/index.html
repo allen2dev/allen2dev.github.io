@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="如何跳出嵌套循环语句？在日常开发中，有时候会通过编写双重 for 循环语句来完成业务逻辑，跳出 for 循环使用 break; 语句，如果需要跳出双重 for 循环就需要定义 label 语句了 1234567891011let num &#x3D; 0;outermost:for (let i &#x3D; 0; i &lt; 10; i++) &#123;  for (let j &#x3D; 0; j &lt; 10;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="javascript 中常见的可中断执行编程范式">
+<meta property="og:url" content="http://example.com/2021/01/14/javascript%20%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E5%8F%AF%E4%B8%AD%E6%96%AD%E6%89%A7%E8%A1%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F/index.html">
+<meta property="og:site_name" content="我的碎碎念">
+<meta property="og:description" content="如何跳出嵌套循环语句？在日常开发中，有时候会通过编写双重 for 循环语句来完成业务逻辑，跳出 for 循环使用 break; 语句，如果需要跳出双重 for 循环就需要定义 label 语句了 1234567891011let num &#x3D; 0;outermost:for (let i &#x3D; 0; i &lt; 10; i++) &#123;  for (let j &#x3D; 0; j &lt; 10;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-01-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-06-11T10:39:36.475Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="javascript">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>javascript 中常见的可中断执行编程范式</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/06/06/react-keep-alive/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2020/04/18/react-hooks/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+    </span>
+    <br/>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%B7%B3%E5%87%BA%E5%B5%8C%E5%A5%97%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">如何跳出嵌套循环语句？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%84%9A%E6%9C%AC%E6%89%A7%E8%A1%8C%E2%80%9C%E7%9D%A1%E7%9C%A0%E2%80%9D"><span class="toc-number">2.</span> <span class="toc-text">如何实现脚本执行“睡眠”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%B8%AD%E6%AD%A2%E5%B7%B2%E7%BB%8F%E5%8F%91%E8%B5%B7%E7%9A%84%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82"><span class="toc-number">3.</span> <span class="toc-text">如何中止已经发起的网络请求</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry heti" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        javascript 中常见的可中断执行编程范式
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Allen</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-01-13T16:00:00.000Z" class="dt-published" itemprop="datePublished">2021-01-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/javascript/">javascript</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/javascript/" rel="tag">javascript</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h3 id="如何跳出嵌套循环语句？"><a href="#如何跳出嵌套循环语句？" class="headerlink" title="如何跳出嵌套循环语句？"></a>如何跳出嵌套循环语句？</h3><p>在日常开发中，有时候会通过编写双重 for 循环语句来完成业务逻辑，跳出 for 循环使用 break; 语句，如果需要跳出双重 for 循环就需要定义 label 语句了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> num = <span class="number">0</span>;</span><br><span class="line"><span class="attr">outermost</span>:</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j &lt; <span class="number">10</span>; j++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (i === <span class="number">5</span> &amp;&amp; j === <span class="number">5</span>) &#123;</span><br><span class="line">      <span class="keyword">break</span> outermost;</span><br><span class="line">    &#125;</span><br><span class="line">    num++;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(num);</span><br></pre></td></tr></table></figure>
+
+<h3 id="如何实现脚本执行“睡眠”"><a href="#如何实现脚本执行“睡眠”" class="headerlink" title="如何实现脚本执行“睡眠”"></a>如何实现脚本执行“睡眠”</h3><p>在 debug 阶段有时候需要用到下面的 sleep 函数来中断代码执行：模拟网络请求、暂停执行逻辑查看过渡效果。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">sleep</span>(<span class="params">time</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, time));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(<span class="keyword">async</span> <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;开始执行&#x27;</span> + <span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">    <span class="keyword">await</span> <span class="title function_">sleep</span>(<span class="number">3000</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;等待3s后继续执行&#x27;</span> + <span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<h3 id="如何中止已经发起的网络请求"><a href="#如何中止已经发起的网络请求" class="headerlink" title="如何中止已经发起的网络请求"></a>如何中止已经发起的网络请求</h3><p>当用户频繁点击“提交”或“查询”按钮向后台发起请求时，为了获得优秀的用户体验和节省网络带宽，开发者需要对用户的点击行为进行约束，常见的方式有切换 loading 态处理，如下图所示</p>
+<p>在点击按钮后切换成 loading 样式，这时在请求返回前是不能发起新的请求的，这样做有个弊端：当网络请求时间长一些的时候，用户无法取消当前请求，切换新的请求入参，发起新的请求。</p>
+<p>解决方案：可以利用 JS 新特性 AbortController 来实现 fetch 请求的中断。演示代码如下：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">FooComponent</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> controller = <span class="keyword">new</span> <span class="title class_">AbortController</span>();</span><br><span class="line">      <span class="keyword">const</span> &#123; signal &#125; = controller;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> request = (<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="title function_">fetch</span>(url, query, &#123; signal &#125;);</span><br><span class="line">        <span class="comment">// perfom setData</span></span><br><span class="line">      &#125;)();</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="function">() =&gt;</span> controller.<span class="title function_">abort</span>();</span><br><span class="line">    &#125;, [query]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;&gt;</span>...<span class="tag">&lt;/&gt;</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%B7%B3%E5%87%BA%E5%B5%8C%E5%A5%97%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">如何跳出嵌套循环语句？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%84%9A%E6%9C%AC%E6%89%A7%E8%A1%8C%E2%80%9C%E7%9D%A1%E7%9C%A0%E2%80%9D"><span class="toc-number">2.</span> <span class="toc-text">如何实现脚本执行“睡眠”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%B8%AD%E6%AD%A2%E5%B7%B2%E7%BB%8F%E5%8F%91%E8%B5%B7%E7%9A%84%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82"><span class="toc-number">3.</span> <span class="toc-text">如何中止已经发起的网络请求</span></a></li></ol>
+      </div>
+    
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2018-2024
+    Allen
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+<link
+    rel="stylesheet"
+    href="/lib/heti/heti.min.css"
+  />
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
